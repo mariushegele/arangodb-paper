@@ -1,0 +1,14 @@
+%!TEX root = ./main.tex
+
+\section{Introduction: Multi-Model Databases}
+
+\section{ArangoDB in distributed systems}
+
+\section{Installation}
+
+Upon Installation you have the choice between two Storage Engines – MMFiles and RocksDB. `The MMFiles Storage Engine is deprecated starting with version 3.6.0 and will be removed in a future release' \cite{ArangoDeprecated}.
+
+This is due to a few downsides on part of the MMFiles engine. It only supports data set that fit in its entirety into memory. It also does not support concurrency in reading writing locking on a collection (table) level. RocksDB enables concurrent reads and writes. This can lead to exceptions that need to be handled. RocksDB persists indexes on disk and therefore has a faster startup time. What's important to note is that it puts an upper limit on the transaction size, because it is optimized
+for smaller transactions. Transactions that are too large will be split into multiple smaller commits automatically which might violate ACID properties. This limit can be re-configured. In future Arango plans to handle large transactions as a series of small transactions which will remove the size restriction. \cite{MMvsRocks}
+
+The ArangoDB installation comes with a pre-installed Web Dashboard that provides an overview over data collections, graphical output formatting for graph data as well as an editor for querying and manipulating data in the \gls{aql}.

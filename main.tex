@@ -1,0 +1,46 @@
+\documentclass[
+	a4paper,
+	headings = standardclasses,
+	DIV = 14
+]{scrartcl}
+
+\usepackage{polyglossia}
+\usepackage{csquotes}
+\setmainlanguage{english}
+
+\usepackage{parskip}
+\usepackage[backend = biber]{biblatex}
+\usepackage{graphicx}
+\usepackage[version=4]{mhchem}
+
+% abbreviations:
+\usepackage[acronym,nonumberlist]{glossaries}
+
+\makenoidxglossaries{}
+
+\input{acros.tex}
+
+\bibliography{arangodb.bib} 
+
+\title{ArangoDB}
+\subtitle{New DB Technologies}
+\date{\today}
+
+\author{TBD \and TBD \and 8786673}
+
+\publishers{Duale Hochschule Baden-Württemberg, Stuttgart}
+
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\include{content}
+
+%\printglossaries{}
+\printnoidxglossary[type=\acronymtype,numberedsection=autolabel]
+\printbibliography{}
+
+\end{document}
