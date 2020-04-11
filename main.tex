@@ -16,6 +16,35 @@
 % abbreviations:
 \usepackage[acronym,nonumberlist]{glossaries}
 
+% code snippets:
+\usepackage{listings}
+\usepackage[dvipsnames]{xcolor}
+\definecolor{ListingBackground}{HTML}{F8F8F8}
+%\definecolor{darkgray}{HTML}{6E6E6E}
+\lstset{%
+    language={},			% default language
+    breaklines=true,		        % break lines if necessary (true, false)
+    breakautoindent=true,	        % indenting after break line (true, false)
+    postbreak=\space,		% break line after space
+    tabsize=2,				% tabulator size
+    basicstyle=\ttfamily\footnotesize, % font style
+    showspaces=false,		% show space (true, false)		
+    showstringspaces=false,	% show space in strings (true, false)
+    extendedchars=true,		% show all Latin1 characters (true, false)
+    captionpos=b,			% sets the caption-position to bottom
+    backgroundcolor=\color{ListingBackground}, % source code background
+    %xleftmargin=10pt,		        % margin left
+    %xrightmargin=5pt,		        % margin right
+    frame=single,			        % border settings
+    frameround=ffff,
+    rulecolor=\color{darkgray} % border color
+    fillcolor=\color{ListingBackground},
+    aboveskip=20pt,
+    keywordstyle=\color[rgb]{0.133,0.133,0.6},
+    commentstyle=\color[rgb]{0.133,0.545,0.133},
+    stringstyle=\color[rgb]{0.627,0.126,0.941},
+}
+
 \makenoidxglossaries{}
 
 \input{acros.tex}
@@ -29,7 +58,6 @@
 \author{TBD \and TBD \and 8786673}
 
 \publishers{Duale Hochschule Baden-Württemberg, Stuttgart}
-
 
 \begin{document}
 
