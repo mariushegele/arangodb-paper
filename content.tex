@@ -24,17 +24,12 @@ ArangoDB's strength lies within its capabilities to combine very different parad
 Besides to the normal document collections one can create Edge collections. Each entry in such a collection represents a directed edge and must have at least two properties: \texttt{from\_} and \texttt{to\_} which hold the keys of documents representing the nodes connected by the edge. The entries can also hold other attributes (e.g.\ weight or distance). 
 
 
-\begin{figure}[thp]
-\centering
-\begin{lstlisting}[]
+\begin{lstlisting}[language=ArangoQL, caption={Combining graph and relational data: Looks for a character and uses out-going edges of type \texttt{ChildOf} (= incoming edges of type \texttt{ParentOf}) to determine the character's parents and grandparents.}]
 FOR c IN Characters
-	FILTER c.name == "Bran"
-	FOR parent in 1..2 OUTBOUND c ChildOf
-		RETURN parent.name
+  FILTER c.name == "Bran"
+  FOR parent in 1..2 OUTBOUND c ChildOf
+    RETURN parent.name
 \end{lstlisting}
-\caption{Combining graph and relational data: Looks for a character and uses out-going edges of type \texttt{ChildOf} (= incoming edges of type \texttt{ParentOf}) to determine the character's parents and grandparents.}
-\end{figure}
-
 
 There exist functions for graph traversal or finding the k shortest paths from A to B. Latter requires the definition of which attribute in the edge entry to regard as the weight \cite{ShortestPath}.
 
@@ -57,19 +52,14 @@ This quite simple mechanism can be improved using known NLP methods: tokenizatio
 A further improvement can be the usage of more sophisticated ranking mechanisms than the described naive ranking. \gls{tf-idf} can be used to weight words according to their global importance (`is' is less important than `archaeopteryx').
 The `BM25' metric combines the word's frequency within the text with its overall importance (\gls{tf-idf}), the length of the document and the average document length to determine a qualified measure that can be used to score a document's relevance to a given search query. \cite{ArangoSearchTut}
 
-\begin{figure}[thp]
-\centering
-\begin{lstlisting}
+\begin{lstlisting}[language=ArangoQL,caption={Searching a database of movie descriptions}]
 FOR d IN v_imdb 
-    SEARCH 
-    ANALYZER(d.description IN 
-                    TOKENS('amazing action world alien sci-fi science documental galaxy', 
-                                 'text_en'),
-                     'text_en')
-    SORT BM25(d) DESC 
+  SEARCH 
+  ANALYZER(d.description IN 
+    TOKENS('amazing action world alien sci-fi science galaxy', 
+                 'text_en'),
+     'text_en')
+  SORT BM25(d) DESC 
   LIMIT 10 
-    RETURN d
+  RETURN d
 \end{lstlisting}
-\caption{Searching a database of movie descriptions}
-\end{figure}
-

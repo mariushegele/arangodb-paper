@@ -19,31 +19,61 @@
 % code snippets:
 \usepackage{listings}
 \usepackage[dvipsnames]{xcolor}
+
 \definecolor{ListingBackground}{HTML}{F8F8F8}
-%\definecolor{darkgray}{HTML}{6E6E6E}
-\lstset{%
-    language={},			% default language
-    breaklines=true,		        % break lines if necessary (true, false)
-    breakautoindent=true,	        % indenting after break line (true, false)
-    postbreak=\space,		% break line after space
-    tabsize=2,				% tabulator size
-    basicstyle=\ttfamily\footnotesize, % font style
-    showspaces=false,		% show space (true, false)		
-    showstringspaces=false,	% show space in strings (true, false)
-    extendedchars=true,		% show all Latin1 characters (true, false)
-    captionpos=b,			% sets the caption-position to bottom
-    backgroundcolor=\color{ListingBackground}, % source code background
-    %xleftmargin=10pt,		        % margin left
-    %xrightmargin=5pt,		        % margin right
-    frame=single,			        % border settings
-    frameround=ffff,
-    rulecolor=\color{darkgray} % border color
-    fillcolor=\color{ListingBackground},
-    aboveskip=20pt,
-    keywordstyle=\color[rgb]{0.133,0.133,0.6},
-    commentstyle=\color[rgb]{0.133,0.545,0.133},
-    stringstyle=\color[rgb]{0.627,0.126,0.941},
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{blue}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  commentstyle=\color{green}\ttfamily,
+  morecomment=[l][\color{magenta}]{\#},
+  frame=single,			        % border settings
+  frameround=ffff,
+  rulecolor=\color{darkgray}, % border color,
+  captionpos=b,			% sets the caption-position to bottom
+  xleftmargin=10pt,		        % margin left
+  xrightmargin=5pt,		        % margin right
 }
+
+\definecolor{ArangoKeywordColor}{HTML}{0600ff}
+\definecolor{ArangoFuncColor}{HTML}{3c4b72}
+\definecolor{ArangoStringColor}{HTML}{036a06}
+\definecolor{ArangoNumberColor}{HTML}{0300cd}
+\lstdefinelanguage{ArangoQL}{
+  sensitive=false,
+  morekeywords={FOR,IN,FILTER,OUTBOUND,RETURN,SORT,LIMIT,SEARCH,DESC},
+  keywordstyle=\color{ArangoKeywordColor},
+  morekeywords={[2]PHRASE,ANALYZER,STARTS_WITH,TFIDF,BM25},
+  keywordstyle=[2]\color{ArangoFuncColor},
+  morestring=[b]",
+  morestring=[b]',
+  stringstyle=\color{ArangoStringColor},
+  numberstyle=\color{ArangoNumberColor},
+}
+
+%\lstset{%
+%    language={},			% default language
+%    breaklines=true,		        % break lines if necessary (true, false)
+%    breakautoindent=true,	        % indenting after break line (true, false)
+%    postbreak=\space,		% break line after space
+%    tabsize=2,				% tabulator size
+%    basicstyle=\ttfamily\footnotesize, % font style
+%    showspaces=false,		% show space (true, false)		
+%    showstringspaces=false,	% show space in strings (true, false)
+%    extendedchars=true,		% show all Latin1 characters (true, false)
+%    captionpos=b,			% sets the caption-position to bottom
+%    backgroundcolor=\color{ListingBackground}, % source code background
+%    %xleftmargin=10pt,		        % margin left
+%    %xrightmargin=5pt,		        % margin right
+%    frame=single,			        % border settings
+%    frameround=ffff,
+%    rulecolor=\color{darkgray} % border color
+%    fillcolor=\color{ListingBackground},
+%    aboveskip=20pt,
+%    keywordstyle=\color[rgb]{0.133,0.133,0.6},
+%    commentstyle=\color[rgb]{0.133,0.545,0.133},
+%    stringstyle=\color[rgb]{0.627,0.126,0.941},
+%}
 
 \makenoidxglossaries{}
 
