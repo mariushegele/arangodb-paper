@@ -1,8 +1,19 @@
 %!TEX root = ./main.tex
 
-\section{Introduction: Multi-Model Databases}
+\section{ArangoDB - A Multi Model Database}
+Applications in modern IT have gotten increasingly complex over the last decades. Due to this complexity there is a need for different data model approaches. The traditional table based SQL databases are not the only relevant database solutions anymore. NoSQL databases have been on the rise for more than a decade already. These types of databases can store more versatile data and are not limited by provided table schemas. There are different data models for NoSQL databases too. The most popular ones are "document store" and "key-value store". There are also more specific ones like the "graph" model.
+
+Software with high complexity might need to use multiple of these data models to work. That leads to the problem of maintaining multiple databases for the different data models and complex query architectures to combine these. A solution to this problem is a multi model database with a multi model query language. That way the software only needs to maintain one database and developers can focus on the data rather than handling it.
+
+ArangoDB is an open-source multi model database system developed and maintained by the ArangoDB GmbH. It combines "document", "key-value" and "graph" data in one solution and even provides functionality for other advanced query methods like queries based on geo-location. It has its own query language called AQL (Arango Query Language) which can be used to combine all of these different models and query methods. Additionally it is similar to SQL which makes it easy to use for migrating developers.
+
+ArangoDB was first released in 2011 under the name "AvocadoDB". 
+
+[https://www.arangodb.com](https://www.arangodb.com/)]
 
 \section{ArangoDB in distributed systems}
+- CAP Theorem (CP)
+- Consistency over availability
 
 \section{Installation}
 
@@ -63,3 +74,11 @@ FOR d IN v_imdb
   LIMIT 10 
   RETURN d
 \end{lstlisting}
+
+\section{Comparing ArangoDB}
+- Comparing to MongoDB and Neo4J
+
+- Comparing to SQL
+
+\section{Conclusion and Recommendations}
+While ArangoDB is a powerful database management system and can be used in many scenarios it should (like all other DBMS) not be used without consideration of alternatives. When working with document data for example MongoDB might be a better solution and when working with structured data SQL is the way to go. When it comes to combining multiple data models though ArangoDB is a very capable solution and should always be considered.
