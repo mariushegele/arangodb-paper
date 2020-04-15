@@ -1,6 +1,6 @@
 %!TEX root = ./main.tex
 
-\section{ArangoDB - A Multi Model Database}
+\section{ArangoDB -- A Multi Model Database}
 Applications in modern IT have gotten increasingly complex over the last decades. Due to this complexity there is a need for different data model approaches. The traditional table based SQL databases are not the only relevant database solutions anymore. NoSQL databases have been on the rise for more than a decade already. These types of databases can store more versatile data and are not limited by provided table schemas. There are different data models for NoSQL databases too. The most popular ones are "document store" and "key-value store". There are also more specific ones like the "graph" model.
 
 Software with high complexity might need to use multiple of these data models to work. That leads to the problem of maintaining multiple databases for the different data models and complex query architectures to combine these. A solution to this problem is a multi model database with a multi model query language. That way the software only needs to maintain one database and developers can focus on the data rather than handling it.
@@ -21,7 +21,7 @@ As ArangoDB supports multiple data models there naturally are some differences a
 The \textbf{key-value store} data model scales the best as it is implemented as a document store where each document has a primary key for reference. If we split the database just based on the primary key of the documents there are no problems with lookups or updates and the database scales linearly. If we introduce other attributes to the splitting process it will not scale linearly but depends on the selected attributes. Still the key-value data model is the easiest for scaling an ArangoDB database horizontally.
 \medskip
 
-As the key-value store is implemented based on the \textbf{document store}, single document operations scale in the same manner in the document store data model as in the key-value data model - linearly. Things get more complex with document joins supported by AQL. With this when affected documents reside on different machines it might need a lot of communication between the machines. There is a query optimizer which knows certain metadata that improves performance significantly though.
+As the key-value store is implemented based on the \textbf{document store}, single document operations scale in the same manner in the document store data model as in the key-value data model -- linearly. Things get more complex with document joins supported by AQL\. With this when affected documents reside on different machines it might need a lot of communication between the machines. There is a query optimizer which knows certain metadata that improves performance significantly though.
 \medskip
 
 \textbf{Graph data} stored in ArangoDB is the least efficient in scaling as it is often queried in paths of unknown length. Therefor it might also need a lot of communication between machines in the cluster as graph parts might be distributed and not on a single machine. Trying to store related vertices and edges on one node can help improving the performance.
@@ -53,7 +53,7 @@ ArangoDB's strength lies within its capabilities to combine very different parad
 Besides to the normal document collections one can create Edge collections. Each entry in such a collection represents a directed edge and must have at least two properties: \texttt{from\_} and \texttt{to\_} which hold the keys of documents representing the nodes connected by the edge. The entries can also hold other attributes (e.g.\ weight or distance). 
 
 
-\begin{lstlisting}[language=ArangoQL, caption={Combining graph and relational data: Looks for a character and uses out-going edges of type \texttt{ChildOf} (= incoming edges of type \texttt{ParentOf}) to determine the character's parents and grandparents.}]
+\begin{lstlisting}[language=ArangoQL,label={lst:graph},caption={Combining graph and relational data: Looks for a character and uses out-going edges of type \texttt{ChildOf} (= incoming edges of type \texttt{ParentOf}) to determine the character's parents and grandparents.}]
 FOR c IN Characters
   FILTER c.name == "Bran"
   FOR parent in 1..2 OUTBOUND c ChildOf
@@ -86,8 +86,8 @@ FOR d IN v_imdb
   SEARCH 
   ANALYZER(d.description IN 
     TOKENS('amazing action world alien sci-fi science galaxy', 
-                 'text_en'),
-     'text_en')
+                 `text_en'),
+     `text_en')
   SORT BM25(d) DESC 
   LIMIT 10 
   RETURN d

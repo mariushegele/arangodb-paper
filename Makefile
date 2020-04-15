@@ -9,5 +9,5 @@ main.pdf: main.bbl
 main.bbl: main.bcf
 	biber main
 
-main.bcf:
+main.bcf: main.tex content.tex
 	pdflatex main.tex
