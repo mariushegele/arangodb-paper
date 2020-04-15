@@ -12,7 +12,7 @@ ArangoDB was first released in 2011 under the name "AvocadoDB".
 \cite{ArangoHomepage}
 
 \section{ArangoDB in distributed systems}
-Often the usage of a database exceeds that capacity of the current server. In such a scenario there are two options: Vertical and Horizontal scaling. Vertical scaling means moving ArangoDB to a more capable server. This might be expensive and is not infinitely feasable as there are certain limits to what a single server can achieve. For that reason it is important to look at horizontal scaling and distributed systems for database management systems. ArangoDB has a cluster mode in which you can link several servers into a cluster of database instances. [https://www.arangodb.com/why-arangodb/cluster/] There are some interesting aspects of ArangoDBs cluster mode that are discussed in the following sections.
+Often the usage of a database exceeds that capacity of the current server. In such a scenario there are two options: Vertical and Horizontal scaling. Vertical scaling means moving ArangoDB to a more capable server. This might be expensive and is not infinitely feasable as there are certain limits to what a single server can achieve. For that reason it is important to look at horizontal scaling and distributed systems for database management systems. ArangoDB has a cluster mode in which you can link several servers into a cluster of database instances \cite{ArangoCluster}. There are some interesting aspects of ArangoDBs cluster mode that are discussed in the following sections.
 
 \subsection{Data model differences in cluster mode}
 As ArangoDB supports multiple data models there naturally are some differences as to how they behave scaling in a cluster. There are multiple types of nodes in the ArangoDB cluster mode. More information on that can be found in the ArangoDB documentation.
@@ -28,10 +28,10 @@ As the key-value store is implemented based on the \textbf{document store}, sing
 \cite{ArangoCluster}
 
 \subsection{CAP Theorem}
-The CAP theorem, a theorem of theoretical computer science by Eric Brewer [citation], states that it is impossible to achieve more than two out of these three characteristics in a distributed system: consistency, availability and partition tolerance.
+The CAP theorem, a theorem of theoretical computer science by Eric Brewer \cite{Brewer2000}, states that it is impossible to achieve more than two out of these three characteristics in a distributed system: consistency, availability and partition tolerance.
 
 ArangoDB prefers to maintain internal consistency over availability which makes it a CP system regarding the CAP theorem. When you connect to an arbitrary node of the system you experience a view of the database consistent with all other nodes. When the cluster encounters a network partition it prioritizes to keep its consistency. When one machine fails the ArangoDB cluster continues to serve requests.
-\cite{ArangoCluster}
+\cite{ArangoCluster} 
 
 \section{Installation}
 
