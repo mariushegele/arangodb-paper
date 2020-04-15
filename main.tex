@@ -1,13 +1,13 @@
-\documentclass[
-	a4paper,
-	headings = standardclasses,
-	DIV = 14
-]{scrartcl}
+\documentclass[a4paper,doc]{apa6}
 
 \usepackage{hyperref}
+\usepackage[american]{babel}
 
 % references:
-\usepackage[backend = biber]{biblatex}
+\usepackage{csquotes}
+\usepackage[style=apa6,backend=biber]{biblatex}
+\DeclareLanguageMapping{american}{american-apa}
+\addbibresource{arangodb.bib}
 
 % abbreviations:
 \usepackage[acronym]{glossaries}
@@ -28,16 +28,18 @@
   captionpos=b,			% sets the caption-position to bottom
   xleftmargin=10pt,		        % margin left
   xrightmargin=5pt,		        % margin right
+  showstringspaces=false,
 }
+
 \definecolor{ArangoKeywordColor}{HTML}{0600ff}
 \definecolor{ArangoFuncColor}{HTML}{3c4b72}
 \definecolor{ArangoStringColor}{HTML}{036a06}
 \definecolor{ArangoNumberColor}{HTML}{0300cd}
 \lstdefinelanguage{ArangoQL}{
   sensitive=false,
-  morekeywords={FOR,IN,FILTER,OUTBOUND,RETURN,SORT,LIMIT,SEARCH,DESC},
+  morekeywords={FOR,IN,FILTER,OUTBOUND,RETURN,SORT,LIMIT,SEARCH,ASC,DESC},
   keywordstyle=\color{ArangoKeywordColor},
-  morekeywords={[2]PHRASE,ANALYZER,STARTS_WITH,TFIDF,BM25},
+  morekeywords={[2]PHRASE,ANALYZER,STARTS_WITH,TFIDF,BM25,TOKENS},
   keywordstyle=[2]\color{ArangoFuncColor},
   morestring=[b]",
   morestring=[b]',
@@ -48,25 +50,25 @@
 
 \makenoidxglossaries{}
 \input{acros.tex}
-\bibliography{arangodb.bib} 
 
 \title{ArangoDB}
-\subtitle{New DB Technologies}
+\shorttitle{ArangoDB}
 \date{\today}
 
 \author{TBD \and TBD \and 8786673}
+\affiliation{New DB Technologies -- Duale Hochschule Baden-Württemberg, Stuttgart}
 
-\publishers{Duale Hochschule Baden-Württemberg, Stuttgart}
+\keywords{ArangoDB, database, multi-model, NoSQL, graph}
+
+\abstract{ArangoDB is NoSQL database with a multi-model paradigm. In this paper we will demonstrate its characteristics and features. We will compare it to traditional SQL mechanisms and compare it with other NoSQL databases.}
 
 \begin{document}
-
 \maketitle
 
 \tableofcontents
 
 \include{content}
 
-%\printglossaries{}
 \printnoidxglossary[type=\acronymtype,numberedsection=autolabel]
 \printbibliography{}
 

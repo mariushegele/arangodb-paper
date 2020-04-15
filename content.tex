@@ -1,6 +1,6 @@
 %!TEX root = ./main.tex
 
-\section{ArangoDB - A Multi Model Database}
+\section{Introduction}
 Applications in modern IT have gotten increasingly complex over the last decades. Due to this complexity there is a need for different data model approaches. The traditional table based SQL databases are not the only relevant database solutions anymore. NoSQL databases have been on the rise for more than a decade already. These types of databases can store more versatile data and are not limited by provided table schemas. There are different data models for NoSQL databases too. The most popular ones are "document store" and "key-value store". There are also more specific ones like the "graph" model.
 
 Software with high complexity might need to use multiple of these data models to work. That leads to the problem of maintaining multiple databases for the different data models and complex query architectures to combine these. A solution to this problem is a multi model database with a multi model query language. That way the software only needs to maintain one database and developers can focus on the data rather than handling it.
@@ -9,7 +9,7 @@ ArangoDB is an open-source multi model database system developed and maintained 
 
 ArangoDB was first released in 2011 under the name "AvocadoDB". 
 
-\cite{ArangoHomepage}
+\parencite{ArangoHomepage}
 
 \section{ArangoDB in distributed systems}
 Often the usage of a database exceeds that capacity of the current server. In such a scenario there are two options: Vertical and Horizontal scaling. Vertical scaling means moving ArangoDB to a more capable server. This might be expensive and is not infinitely feasable as there are certain limits to what a single server can achieve. For that reason it is important to look at horizontal scaling and distributed systems for database management systems. ArangoDB has a cluster mode in which you can link several servers into a cluster of database instances \cite{ArangoCluster}. There are some interesting aspects of ArangoDBs cluster mode that are discussed in the following sections.
@@ -21,23 +21,23 @@ As ArangoDB supports multiple data models there naturally are some differences a
 The \textbf{key-value store} data model scales the best as it is implemented as a document store where each document has a primary key for reference. If we split the database just based on the primary key of the documents there are no problems with lookups or updates and the database scales linearly. If we introduce other attributes to the splitting process it will not scale linearly but depends on the selected attributes. Still the key-value data model is the easiest for scaling an ArangoDB database horizontally.
 \medskip
 
-As the key-value store is implemented based on the \textbf{document store}, single document operations scale in the same manner in the document store data model as in the key-value data model - linearly. Things get more complex with document joins supported by AQL. With this when affected documents reside on different machines it might need a lot of communication between the machines. There is a query optimizer which knows certain metadata that improves performance significantly though.
+As the key-value store is implemented based on the \textbf{document store}, single document operations scale in the same manner in the document store data model as in the key-value data model -- linearly. Things get more complex with document joins supported by AQL\. With this when affected documents reside on different machines it might need a lot of communication between the machines. There is a query optimizer which knows certain metadata that improves performance significantly though.
 \medskip
 
 \textbf{Graph data} stored in ArangoDB is the least efficient in scaling as it is often queried in paths of unknown length. Therefor it might also need a lot of communication between machines in the cluster as graph parts might be distributed and not on a single machine. Trying to store related vertices and edges on one node can help improving the performance.
-\cite{ArangoCluster}
+\parencite{ArangoCluster}
 
 \subsection{CAP Theorem}
-The CAP theorem, a theorem of theoretical computer science by Eric Brewer \cite{Brewer2000}, states that it is impossible to achieve more than two out of these three characteristics in a distributed system: consistency, availability and partition tolerance.
+The CAP theorem, a theorem of theoretical computer science by Eric Brewer \parencite{Brewer2000}, states that it is impossible to achieve more than two out of these three characteristics in a distributed system: consistency, availability and partition tolerance.
 
 ArangoDB prefers to maintain internal consistency over availability which makes it a CP system regarding the CAP theorem. When you connect to an arbitrary node of the system you experience a view of the database consistent with all other nodes. When the cluster encounters a network partition it prioritizes to keep its consistency. When one machine fails the ArangoDB cluster continues to serve requests.
-\cite{ArangoCluster} 
+\parencite{ArangoCluster}
 
 \section{Installation}
 
-Upon Installation you have the choice between two Storage Engines – MMFiles and RocksDB. `The MMFiles Storage Engine is deprecated starting with version 3.6.0 and will be removed in a future release' \cite{ArangoDeprecated}.
+Upon Installation you have the choice between two Storage Engines – MMFiles and RocksDB. `The MMFiles Storage Engine is deprecated starting with version 3.6.0 and will be removed in a future release' \parencite{ArangoDeprecated}.
 
-This is due to a few downsides on part of the MMFiles engine. It only supports data set that fit in its entirety into memory. It also does not support concurrency in reading writing locking on a collection (table) level. RocksDB enables concurrent reads and writes. This can lead to exceptions that need to be handled. RocksDB persists indexes on disk and therefore has a faster startup time. What's important to note is that it puts an upper limit on the transaction size, because it is optimized for smaller transactions. Transactions that are too large will be split into multiple smaller commits automatically which might violate ACID properties. This limit can be re-configured. In future Arango plans to handle large transactions as a series of small transactions which will remove the size restriction. \cite{MMvsRocks}
+This is due to a few downsides on part of the MMFiles engine. It only supports data set that fit in its entirety into memory. It also does not support concurrency in reading writing locking on a collection (table) level. RocksDB enables concurrent reads and writes. This can lead to exceptions that need to be handled. RocksDB persists indexes on disk and therefore has a faster startup time. What's important to note is that it puts an upper limit on the transaction size, because it is optimized for smaller transactions. Transactions that are too large will be split into multiple smaller commits automatically which might violate ACID properties. This limit can be re-configured. In future Arango plans to handle large transactions as a series of small transactions which will remove the size restriction. \parencite{MMvsRocks}
 
 The ArangoDB installation comes with a pre-installed Web Dashboard that provides an overview over data collections, graphical output formatting for graph data as well as an editor for querying and manipulating data in the \gls{aql}. It also comes with a CLI that can be used for more advanced features and configurations such as data sharding. There are interfaces available to multiple high-level programming languages such as Python, Java or C++. 
 %We tested the Python interface which comes in form of a PyPi package `python-arango`. We were able to create a new entry, but failed in updating exisiting documents, even after extensive research into possible problems.
@@ -53,41 +53,41 @@ ArangoDB's strength lies within its capabilities to combine very different parad
 Besides to the normal document collections one can create Edge collections. Each entry in such a collection represents a directed edge and must have at least two properties: \texttt{from\_} and \texttt{to\_} which hold the keys of documents representing the nodes connected by the edge. The entries can also hold other attributes (e.g.\ weight or distance). 
 
 
-\begin{lstlisting}[language=ArangoQL, caption={Combining graph and relational data: Looks for a character and uses out-going edges of type \texttt{ChildOf} (= incoming edges of type \texttt{ParentOf}) to determine the character's parents and grandparents.}]
+\begin{lstlisting}[language=ArangoQL,label={lst:graph},caption={Combining graph and relational data: Looks for a character and uses out-going edges of type \texttt{ChildOf} (= incoming edges of type \texttt{ParentOf}) to determine the character's parents and grandparents.}]
 FOR c IN Characters
   FILTER c.name == "Bran"
   FOR parent in 1..2 OUTBOUND c ChildOf
     RETURN parent.name
 \end{lstlisting}
 
-There exist functions for graph traversal or finding the k shortest paths from A to B. Latter requires the definition of which attribute in the edge entry to regard as the weight \cite{ShortestPath}.
+There exist functions for graph traversal or finding the k shortest paths from A to B. Latter requires the definition of which attribute in the edge entry to regard as the weight \parencite{ShortestPath}.
 
 \subsection{Geo Indexing}
 
-Next to a primary index (key) a document collection can also hold a second index: a \texttt{GeoIndex}, which is defined on a document attribute that holds an array of length two representing the latitude and longitude of the location. A tutorial \cite{GeoTut} still demonstrates the Geo Index Functions \texttt{NEAR} that could be used to determine the N nearest locations to a certain point, and \texttt{WITHIN} that could be used to determine locations within a certain radius.
-These are deprecated startimg from version 3.4.0 and were replaced by Geo utility functions, mainly the \texttt{DISTANCE} which can be used in combination with general \gls{aql} to achieve the same results as aforementioned functions. This queries will nonetheless still be optimized, as long as the attributes operated on have been marked as Geo Indexes \cite{GeoFunc}.
+Next to a primary index (key) a document collection can also hold a second index: a \texttt{GeoIndex}, which is defined on a document attribute that holds an array of length two representing the latitude and longitude of the location. A tutorial \parencite{GeoTut} still demonstrates the Geo Index Functions \texttt{NEAR} that could be used to determine the N nearest locations to a certain point, and \texttt{WITHIN} that could be used to determine locations within a certain radius.
+These are deprecated startimg from version 3.4.0 and were replaced by Geo utility functions, mainly the \texttt{DISTANCE} which can be used in combination with general \gls{aql} to achieve the same results as aforementioned functions. This queries will nonetheless still be optimized, as long as the attributes operated on have been marked as Geo Indexes \parencite{GeoFunc}.
 
-ArangoDB has extended the idea of two coordinates acting as a geo index to a more general geospatial format: \texttt{GeoJSON}. Next to geographic points it also among others allows the definition of \texttt{MultiLineString}s which could represent paths or routes and \texttt{Polygon}s which could represent areas or buildings \cite{GeoJSON}.
-The functions \texttt{GEO\_CONTAINS}, \texttt{GEO\_AREA} or \texttt{GEO\_INTERSECTS} can then be used for evaluation of polygons in regards to whether it contains a certain point, the size of the area it circumfences or whether it intersects with a second polygon \cite{GeoFunc}.
+ArangoDB has extended the idea of two coordinates acting as a geo index to a more general geospatial format: \texttt{GeoJSON}. Next to geographic points it also among others allows the definition of \texttt{MultiLineString}s which could represent paths or routes and \texttt{Polygon}s which could represent areas or buildings \parencite{GeoJSON}.
+The functions \texttt{GEO\_CONTAINS}, \texttt{GEO\_AREA} or \texttt{GEO\_INTERSECTS} can then be used for evaluation of polygons in regards to whether it contains a certain point, the size of the area it circumfences or whether it intersects with a second polygon \parencite{GeoFunc}.
 
 \subsection{Information Retrieval}
 
 Search in natural language texts can be a relevant, but complex and compute-expensive operation. Arango provides functions and optimizations that facilitate this task in the form of two methods: Fulltext indexing and ArangoSearch.
 
-Equal to geo indexes an attribute within a document can be marked as a fulltext index. The attribute needs to contain a string, an object with string properties or an array of strings \cite{FulltextIndex}. This opens up the \texttt{FULLTEXT} functionality which allows to look for documents which do (not) contain or do (not) start with a certain word. These checks can be combined in conjunctions or disjunctions \cite{FulltextFunc}.
+Equal to geo indexes an attribute within a document can be marked as a fulltext index. The attribute needs to contain a string, an object with string properties or an array of strings \parencite{FulltextIndex}. This opens up the \texttt{FULLTEXT} functionality which allows to look for documents which do (not) contain or do (not) start with a certain word. These checks can be combined in conjunctions or disjunctions \parencite{FulltextFunc}.
 
 ArangoSearch is a search engine that was created to help in querying semi- or unstructured data and offers ranking mechanisms. It parses documents and creates an inverted index which holds a mapping for each word in vocubalry to each document in the corpus it is contained in. This enables quick queries and a naive ranking methodology: given a set of words in query return the document which holds most of these words.
 This quite simple mechanism can be improved using known NLP methods: tokenization and stemming. ArangoDB overs text analyzers for many language that can split sentences into words (respecting cases like `aren\'t') and matching them to their according stem (e.g.\ jumps = jump). This enables the unified analysis of texts originating from multiple languages.
 A further improvement can be the usage of more sophisticated ranking mechanisms than the described naive ranking. \gls{tf-idf} can be used to weight words according to their global importance (`is' is less important than `archaeopteryx').
-The `BM25' metric combines the word's frequency within the text with its overall importance (\gls{tf-idf}), the length of the document and the average document length to determine a qualified measure that can be used to score a document's relevance to a given search query. \cite{ArangoSearchTut}
+The `BM25' metric combines the word's frequency within the text with its overall importance (\gls{tf-idf}), the length of the document and the average document length to determine a qualified measure that can be used to score a document's relevance to a given search query. \parencite{ArangoSearchTut}
 
 \begin{lstlisting}[language=ArangoQL,caption={Searching a database of movie descriptions}]
 FOR d IN v_imdb 
   SEARCH 
   ANALYZER(d.description IN 
     TOKENS('amazing action world alien sci-fi science galaxy', 
-                 'text_en'),
-     'text_en')
+                 `text_en'),
+     `text_en')
   SORT BM25(d) DESC 
   LIMIT 10 
   RETURN d
