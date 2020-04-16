@@ -53,9 +53,9 @@ Joins of different collections can be simplified and from our experience substan
 \subsection{Code Examples}
 The following code examples are based on a collection of users with the attributes name, age and hobbies.
 
-For-Iteration
+\subsubsection{For-Iteration}
 
-To iterate over a collection of documents, a simple for loop can be used.
+To iterate over a collection of documents, a simple for loop similar to the ones of higher level programming languages can be used.
 
 \begin{lstlisting}[language=ArangoQL,label={lst:graph},caption={For-Loop}]
   FOR user IN users
@@ -74,7 +74,7 @@ Another powerful feature of ArangoDB is changing the output formatting of querie
     RETURN concat(user.name, "'s age is ", user.age)
 \end{lstlisting}
 
-Updating Documents
+\subsubsection{Updating Documents}
 
 Performing a bulk update of documents can make use of filters to select a subset of the whole collection. Filters can also be used to update documents with incorrect missing information.
 
@@ -97,7 +97,7 @@ Performing a bulk update of documents can make use of filters to select a subset
     IN users
 \end{lstlisting}
 
-Array Expansion
+\subsubsection{Array Expansion}
 
 The array expansion, denoted as [*], can be used to replace for loops and reduce code for aggregations. The following code will return all unique hobbies of our users from our users collection.
 
@@ -113,7 +113,7 @@ The array expansion, denoted as [*], can be used to replace for loops and reduce
 
 The following queries are based on the following entity relationship model (ERM) of a book rental system from our databases lecture from the third semester which would be used in a relational database. We chose to remodel some queries in \gls{aql} with the goal to comprehend how we can achieve the result of an \gls{sql} system with \gls{aql}.
 
-Returning the average of how many times a book has been rented
+\subsubsection{Returning the average of how many times a book has been rented}
 
 The first exercise we choose is a simple aggregation. The code uses an array expansion to iterate through the collection and return the rental time which is then averaged.
 
@@ -121,7 +121,7 @@ The first exercise we choose is a simple aggregation. The code uses an array exp
   RETURN average(books[*].lent_times)
 \end{lstlisting}
 
-Return which book is rented by whom
+\subsubsection{Return which book is rented by whom}
 
 For that we use the rentals collection as our base and join the book and user information on their primary keys. We then format the output to return a JSON output returning each book with its reader.
 
@@ -138,7 +138,7 @@ For that we use the rentals collection as our base and join the book and user in
     }
 \end{lstlisting}
 
-Return how many books each reader should have given back
+\subsubsection{Return how many books each reader should have given back}
 
 For solving this problem we iterate through all rentals and save the due date for each book. We then check if the book exceeds its renting period and if it has not been returned yet. Finally we aggregate the book names and due dates and return each reader with a count of how many books are due.
 
@@ -170,7 +170,7 @@ For solving this problem we iterate through all rentals and save the due date fo
     }
 \end{lstlisting}
 
-Return all books and for those which are rented, to whom they are
+\subsubsection{Return all books and for those which are rented, to whom they are}
 
 This task proved to be a more difficult one as we had to first retrieve all books that are rented out by someone. We then had to subtract that list from the full book list to get the list of books that are not rented by someone. This exampe shows the higher complexity of left joins in \gls{aql} as this query contains two sub-queries for rented and not-rented books.
 
