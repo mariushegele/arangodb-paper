@@ -43,6 +43,151 @@ The ArangoDB installation comes with a pre-installed Web Dashboard that provides
 %We tested the Python interface which comes in form of a PyPi package `python-arango`. We were able to create a new entry, but failed in updating exisiting documents, even after extensive research into possible problems.
 
 \section{Demo}
+The following will show a few code examples of how the AQL language can be used.
+
+\subsection{Pitfall: Keys and Documents}
+Before getting into the first code examples, we came accross some issues when working with keys of single documents. Accessing a document with their ID is done with a special DOCUMENT function with collection and ID as its parameters. Using an Array-like notation of collection[document\_id] will interpret the document\_id as the index of the collection, which may be different from the document\_id.
+
+Joins of different collections can be simplified and from our experience substantially speed up by using the DOCUMENT function to select a subcollection instead of using double-for-loops with filters
+
+\subsection{Code Examples}
+The following code examples are based on a collection of users with the attributes name, age and hobbies.
+
+For-Iteration
+
+To iterate over a collection of documents, a simple for loop can be used.
+
+\begin{lstlisting}[language=ArangoQL,label={lst:graph},caption={For-Loop}]
+  FOR user IN users
+    SORT user.age
+    RETURN user
+\end{lstlisting}
+
+Output Formatting
+
+Another powerful feature of ArangoDB is changing the output formatting of queries. The following example shows how to retrieve a list of all users' names and their age and inserting this information into simple sentences.
+
+\begin{lstlisting}[language=ArangoQL,label={lst:graph},caption={Output formatting}]
+  FOR user IN users
+    FILTER user.age < 35
+    SORT user.age ASC
+    RETURN concat(user.name, "'s age is ", user.age)
+\end{lstlisting}
+
+Updating Documents
+
+Performing a bulk update of documents can make use of filters to select a subset of the whole collection. Filters can also be used to update documents with incorrect missing information.
+
+\begin{lstlisting}[language=ArangoQL,label={lst:graph},caption={Updating documents}]
+  FOR user IN users
+    FILTER user.name == "Tick"
+    UPDATE user WITH
+    {
+      hobbies: [
+        {
+          name: "biking",
+          howMuch: 9
+        },
+        {
+          name: "fishing",
+          howMuch: 7
+        }
+      ]
+    }
+    IN users
+\end{lstlisting}
+
+Array Expansion
+
+The array expansion, denoted as [*], can be used to replace for loops and reduce code for aggregations. The following code will return all unique hobbies of our users from our users collection.
+
+\begin{lstlisting}[language=ArangoQL,label={lst:graph},caption={Array Expansion}]
+  RETURN unique(
+    flatten(
+      users[*].hobbies[*].name
+    )
+  )
+\end{lstlisting}
+
+\subsection{Example queries of an ERM}
+
+The following queries are based on the following entity relationship model (ERM) of a book rental system from our databases lecture from the third semester which would be used in a relational database. We chose to remodel some queries in AQL with the goal to comprehend how we can achieve the result of an SQL system with AQL.
+
+Returning the average of how many times a book has been rented
+
+The first exercise we choose is a simple aggregation. The code uses an array expansion to iterate through the collection and return the rental time which is then averaged.
+
+\begin{lstlisting}[language=ArangoQL,label={lst:graph},caption={Returning the average of how many times a book has been rented}]
+  RETURN average(books[*].lent_times)
+\end{lstlisting}
+
+Return which book is rented by whom
+
+For that we use the rentals collection as our base and join the book and user information on their primary keys. We then format the output to return a JSON output returning each book with its reader.
+
+\begin{lstlisting}[language=ArangoQL,label={lst:graph},caption={Return which book is rented by whom}]
+  FOR r IN rentals
+    LET b = DOCUMENT("books", r.book_id)
+    LET u = DOCUMENT("users", r.reader_id)
+    
+    COLLECT reader = u._key, name = u.name INTO reads = b.title
+
+    RETURN {
+      "name": name,
+      "book": reads
+    }
+\end{lstlisting}
+
+Return how many books each reader should have given back
+
+For solving this problem we iterate through all rentals and save the due date for each book. We then check if the book exceeds its renting period and if it has not been returned yet. Finally we aggregate the book names and due dates and return each reader with a count of how many books are due.
+
+\begin{lstlisting}[language=ArangoQL,label={lst:graph},caption={Return how many books each reader should have given back}]
+  FOR r IN rentals
+    LET u = DOCUMENT("readers", r.reader_id)
+    LET b = DOCUMENT("books", r.book_id)
+
+    LET due = DATE_ADD(
+      r.out_date,
+      b.lending_period,
+      "days"
+    )
+
+    LET now = DATE_ISO8601(2018, 10, 25)
+    
+    FILTER due < now
+      AND r.back_date == null
+    
+    COLLECT name = u.name
+      INTO books = {
+        "title": b.title,
+        "due": due
+      }
+
+    RETURN {
+      "name": name,
+      "books": length(books)
+    }
+\end{lstlisting}
+
+Return all books and for those which are rented, to whom they are
+
+This task proved to be a more difficult one as we had to first retrieve all books that are rented out by someone. We then had to subtract that list from the full book list to get the list of books that are not rented by someone. This exampe shows the higher complexity of left joins in AQL as this query contains two sub-queries for rented and not-rented books.
+
+\begin{lstlisting}[language=ArangoQL,label={lst:graph},caption={Return all books and for those which are rented, to whom they are}]
+  LET rented = (
+    FOR r IN rentals
+      LET b = DOCUMENT("books", r.book_id)
+      RETURN merge(b, {
+        "to": r.reader_id
+      })
+  )
+
+  LET not_rented_keys = minus(books[*]._key, rented[*]._key)
+  LET not_rented = DOCUMENT("books", not_rented_keys)
+
+  RETURN union(not_rented, rented)
+\end{lstlisting}
 
 \section{Multi-Model Functions}
 
@@ -94,9 +239,36 @@ FOR d IN v_imdb
 \end{lstlisting}
 
 \section{Comparing ArangoDB}
-- Comparing to MongoDB and Neo4J
 
-- Comparing to SQL
+\subsection{Multi-Model}
+A big difference between ArangoDB, MongoDB and Neo4j lies in the models they support. ArangoDB allows the user to store data in key-value based, document based, something the official website describes as "kind of relational" based and graph based stores \parencite{DBBenchmark}. ArangoDB can therefore be used in a wider range of use cases. MongoDB and Neo4j are only single-model databases. MongoDB is a document-based storage which makes it suitable for storing JSON-like data. Neo4j is a graph database which makes it mostly suitable for graph-based problems. Because of the differences in underlying concepts, direct comparisons between ArangoDB, MongoDB and Neo4j may not always make sense.
+
+\subsection{Supported Technologies}
+
+While all three support at least Windows, OS X and Linux as their server operating system, MongoDB and Neo4j also support Solaris. All three also provide interfaces for integrating them with higher-level programming languages like Python, JavaScript and Java. Although MongoDB supports by far the most programming languages, most of the drivers are inofficial \parencite{DBEnginesComparisons}.
+
+\subsection{Performance}
+
+In 2018, ArangoDB CEO Claudius Weinberger and others performed a benchmark which compares ArangoDB with other No-SQL DBMS which includes Neo4j and MongoDB \parencite{DBBenchmark}. The dataset used is the Pokec dataset provided by the Stanford University SNAP, a dataset of the slovakian social media network with 1.6 million people (vertices) which are connected by 30.6 million edges \parencite{Pokec}. Since this dataset includes edge data in form of friendships it also makes it possible to perform graph queries. The categories tested are:
+
+\begin{itemize}
+  \item single-read (single document reads of profiles)
+  \item single-write (single document writes of profiles)
+  \item single-write sync (same as single-writes with waiting for synchronizing the file's in-core state with storage device on every request)
+  \item aggregation (calculating the age distribution for everyone in the network, counting how often each age occurs)
+  \item neighbors second (searching for distinct, direct neighbors, plus the neighbors of the neighbors, returning ID’s for 1,000 vertices)
+  \item neighbors second with data (searching for distinct, direct neighbors, plus the neighbors of the neighbors and returning their profiles for 100 vertices)
+  \item shortest path (finding 1,000 shortest paths)
+  \item memory usage (average of the maximum memory consumption during execution of the tests)
+\end{itemize}
+
+ArangoDBs RocksDB engine is used as the baseline for calculating the relative perfomance of the other systems.
+
+MongoDB is outperformed by the other two systems in almost every category only having an advantage in memory consumption and being better than Neo4j in neighbors second with data and aggregation. MongoDB has the \$graphlookup operator but according to the developer team "performance was so slow that we decided not to use it and wrote the query in the old way [...]". The shortest path calculation was therefore skipped \parencite{DBBenchmark}.
+
+Neo4j performs worse than ArangoDB in all categories by almost 100\%, leaving out single reads and writes. Also there Neo4j does not support single writes without waiting for file synchronization. Performance might increase for graph tasks by adding another edge index since the team did not add one as "Neo4j claims to use “index-free adjacency” for the edges \parencite{DBBenchmark}."
+
+ArangoDBs own engines perform very similar falling within 5\% range. The only categories that a notable difference are shortest path and neighbors second where RocksDB outperforms MMFiles and memory usage where MMFiles performs better by around 7\% \parencite{DBBenchmark}.
 
 \section{Conclusion and Recommendations}
 While ArangoDB is a powerful database management system and can be used in many scenarios it should (like all other DBMS) not be used without consideration of alternatives. When working with document data for example MongoDB might be a better solution and when working with structured data SQL is the way to go. When it comes to combining multiple data models though ArangoDB is a very capable solution and should always be considered.
