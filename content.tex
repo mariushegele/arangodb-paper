@@ -1,97 +1,85 @@
 %!TEX root = ./main.tex
 
 \section{Introduction}
-Applications in modern IT have gotten increasingly complex over the last decades. Due to this complexity there is a need for different data model approaches. The traditional table based SQL databases are not the only relevant database solutions anymore. NoSQL databases have been on the rise for more than a decade already. These types of databases can store more versatile data and are not limited by provided table schemas. There are different data models for NoSQL databases too. The most popular ones are "document store" and "key-value store". There are also more specific ones like the "graph" model.
 
-Software with high complexity might need to use multiple of these data models to work. That leads to the problem of maintaining multiple databases for the different data models and complex query architectures to combine these. A solution to this problem is a multi model database with a multi model query language. That way the software only needs to maintain one database and developers can focus on the data rather than handling it.
+Applications in modern IT have gotten increasingly complex over the last decades. Due to this complexity there is a need for different data model approaches. The traditional table based SQL databases are not the only relevant database solutions anylonger. NoSQL databases have been on the rise for more than a decade already. These types of databases can store more versatile data and are not limited by table schemas. There are different data models for NoSQL databases too. The most popular ones are "document store" and "key-value store". There are also more specific ones like the "graph" model.
 
-ArangoDB is an open-source multi model database system developed and maintained by the ArangoDB GmbH. It combines "document", "key-value" and "graph" data in one solution and even provides functionality for other advanced query methods like queries based on geo-location. It has its own query language called AQL (Arango Query Language) which can be used to combine all of these different models and query methods. Additionally it is similar to SQL which makes it easy to use for migrating developers.
+Software with high complexity might need to use multiple of these data models to work. That leads to the problem of maintaining multiple databases for the different data models and complex query architectures to combine these. A solution to this problem is a multi-model database with a multi-model query language. That way the software only needs to maintain one database and developers can focus on the data rather than handling it.
 
-ArangoDB was first released in 2011 under the name "AvocadoDB". 
-
-\parencite{ArangoHomepage}
+ArangoDB is an open-source multi model database system developed and maintained by the ArangoDB GmbH. It combines "document", "key-value" and "graph" data in one solution and even provides functionality for other advanced query methods like queries based on geo-location. It has its own query language called \gls{aql} which can be used to combine all of these different models and query methods. Additionally it is similar to SQL which makes it easy to use for migrating developers. ArangoDB was
+first released in 2011 under the name "AvocadoDB". \parencite{ArangoHomepage}
 
 \section{ArangoDB in distributed systems}
-Often the usage of a database exceeds that capacity of the current server. In such a scenario there are two options: Vertical and Horizontal scaling. Vertical scaling means moving ArangoDB to a more capable server. This might be expensive and is not infinitely feasable as there are certain limits to what a single server can achieve. For that reason it is important to look at horizontal scaling and distributed systems for database management systems. ArangoDB has a cluster mode in which you can link several servers into a cluster of database instances \cite{ArangoCluster}. There are some interesting aspects of ArangoDBs cluster mode that are discussed in the following sections.
+
+Often the usage of a database exceeds the capacity of the current server. In such a scenario there are two options: Vertical and horizontal scaling. Vertical scaling means moving ArangoDB to a more capable server. This might be expensive and is not infinitely feasable as there are certain limits to what a single server can achieve. For that reason it is important to look at horizontal scaling and distributed systems for database management systems. ArangoDB has a cluster mode in which you can link several servers into a cluster of database instances \parencite{ArangoCluster}. There are some interesting aspects of ArangoDBs cluster mode that are discussed in the following sections.
 
 \subsection{Data model differences in cluster mode}
-As ArangoDB supports multiple data models there naturally are some differences as to how they behave scaling in a cluster. There are multiple types of nodes in the ArangoDB cluster mode. More information on that can be found in the ArangoDB documentation.
+As ArangoDB supports multiple data models there naturally are some differences as to how they behave scaling in a cluster \parencite{ArangoCluster}. There are multiple types of nodes in the ArangoDB cluster mode. More information on that can be found in the ArangoDB documentation.
 \medskip
 
 The \textbf{key-value store} data model scales the best as it is implemented as a document store where each document has a primary key for reference. If we split the database just based on the primary key of the documents there are no problems with lookups or updates and the database scales linearly. If we introduce other attributes to the splitting process it will not scale linearly but depends on the selected attributes. Still the key-value data model is the easiest for scaling an ArangoDB database horizontally.
 \medskip
 
-As the key-value store is implemented based on the \textbf{document store}, single document operations scale in the same manner in the document store data model as in the key-value data model -- linearly. Things get more complex with document joins supported by AQL\. With this when affected documents reside on different machines it might need a lot of communication between the machines. There is a query optimizer which knows certain metadata that improves performance significantly though.
+As the key-value store is implemented based on the \textbf{document store}, single document operations scale in the same manner in the document store data model as in the key-value data model -- linearly. Things get more complex with document joins supported by \gls{aql}. When affected documents reside on different machines it might require a lot of communication between the machines. But there exists a query optimizer which knows certain metadata that improves performance significantly.
 \medskip
 
-\textbf{Graph data} stored in ArangoDB is the least efficient in scaling as it is often queried in paths of unknown length. Therefor it might also need a lot of communication between machines in the cluster as graph parts might be distributed and not on a single machine. Trying to store related vertices and edges on one node can help improving the performance.
-\parencite{ArangoCluster}
+\textbf{Graph data} stored in ArangoDB is the least efficiently scalable as it is often queried in paths of unknown length. Therefore it might also need a lot of communication between machines in the cluster as graph parts might be distributed and not on a single machine. Trying to store related vertices and edges on one node can help improving the performance.
 
 \subsection{CAP Theorem}
 The CAP theorem, a theorem of theoretical computer science by Eric Brewer \parencite{Brewer2000}, states that it is impossible to achieve more than two out of these three characteristics in a distributed system: consistency, availability and partition tolerance.
 
-ArangoDB prefers to maintain internal consistency over availability which makes it a CP system regarding the CAP theorem. When you connect to an arbitrary node of the system you experience a view of the database consistent with all other nodes. When the cluster encounters a network partition it prioritizes to keep its consistency. When one machine fails the ArangoDB cluster continues to serve requests.
-\parencite{ArangoCluster}
+ArangoDB prefers to maintain internal consistency over availability which makes it a CP system regarding the CAP theorem. When you connect to an arbitrary node of the system you experience a view of the database consistent with all other nodes. When the cluster encounters a network partition it prioritizes to keep its consistency. When one machine fails the ArangoDB cluster continues to serve requests. \parencite{ArangoCluster}
 
 \section{Installation}
 
-Upon Installation you have the choice between two Storage Engines – MMFiles and RocksDB. `The MMFiles Storage Engine is deprecated starting with version 3.6.0 and will be removed in a future release' \parencite{ArangoDeprecated}.
-
-This is due to a few downsides on part of the MMFiles engine. It only supports data set that fit in its entirety into memory. It also does not support concurrency in reading writing locking on a collection (table) level. RocksDB enables concurrent reads and writes. This can lead to exceptions that need to be handled. RocksDB persists indexes on disk and therefore has a faster startup time. What's important to note is that it puts an upper limit on the transaction size, because it is optimized for smaller transactions. Transactions that are too large will be split into multiple smaller commits automatically which might violate ACID properties. This limit can be re-configured. In future Arango plans to handle large transactions as a series of small transactions which will remove the size restriction. \parencite{MMvsRocks}
+Upon Installation you have the choice between two Storage Engines – MMFiles and RocksDB. `The MMFiles Storage Engine is deprecated starting with version 3.6.0 and will be removed in a future release' \parencite{ArangoDeprecated}. This is due to a few downsides on part of the MMFiles engine. It only supports data set that fit into memory in its entirety. It also does not support concurrency in reading and writing and locks on a collection (table) level. RocksDB enables concurrent reads and writes. This can lead to exceptions that need to be handled. RocksDB persists indices on disk and therefore has a faster startup time. What's important to note is that it puts an upper limit on the transaction size, because it is optimized for smaller transactions. Transactions that are too large will be split into multiple smaller commits automatically which might violate ACID properties. This limit can be re-configured. In future Arango plans to handle large transactions as a series of small transactions which will remove the size restriction. \parencite{MMvsRocks}
 
 The ArangoDB installation comes with a pre-installed Web Dashboard that provides an overview over data collections, graphical output formatting for graph data as well as an editor for querying and manipulating data in the \gls{aql}. It also comes with a CLI that can be used for more advanced features and configurations such as data sharding. There are interfaces available to multiple high-level programming languages such as Python, Java or C++. 
-%We tested the Python interface which comes in form of a PyPi package `python-arango`. We were able to create a new entry, but failed in updating exisiting documents, even after extensive research into possible problems.
 
 \section{Demo}
-The following will show a few code examples of how the AQL language can be used.
+The following will show a few code examples of how the \gls{aql} language can be used.
 
 \subsection{Pitfall: Keys and Documents}
-Before getting into the first code examples, we came accross some issues when working with keys of single documents. Accessing a document with their ID is done with a special DOCUMENT function with collection and ID as its parameters. Using an Array-like notation of collection[document\_id] will interpret the document\_id as the index of the collection, which may be different from the document\_id.
+Before getting into the first code examples, we came accross some issues when working with keys of single documents. Accessing a document by their key is done with a special \texttt{DOCUMENT} function with the collection and the ID as its parameters. Using an Array-like notation of \texttt{collection[document\_id]} will interpret the \texttt{document\_id} as the index of the collection, which may be different from the \texttt{document\_id}.
 
-Joins of different collections can be simplified and from our experience substantially speed up by using the DOCUMENT function to select a subcollection instead of using double-for-loops with filters
+Joins of different collections can be simplified and from our experience substantially sped up by using the \texttt{DOCUMENT} function to select a subcollection instead of using double-for-loops with filters
 
 \subsection{Code Examples}
-The following code examples are based on a collection of users with the attributes name, age and hobbies.
+The following code examples are based on a collection of users with the attributes \textit{name}, \textit{age} and an array of \textit{hobbies}.
 
 \subsubsection{For-Iteration}
 
 To iterate over a collection of documents, a simple for loop similar to the ones of higher level programming languages can be used.
 
-\begin{lstlisting}[language=ArangoQL,label={lst:graph},caption={For-Loop}]
+\begin{lstlisting}[language=ArangoQL]
   FOR user IN users
     SORT user.age
     RETURN user
 \end{lstlisting}
 
-Output Formatting
+\subsubsection{Output Formatting}
 
-Another powerful feature of ArangoDB is changing the output formatting of queries. The following example shows how to retrieve a list of all users' names and their age and inserting this information into simple sentences.
+Another powerful feature of ArangoDB is changing the output formatting of queries. The following example shows how to retrieve a list of all users' name and age and inserting this information into simple sentences.
 
-\begin{lstlisting}[language=ArangoQL,label={lst:graph},caption={Output formatting}]
+\begin{lstlisting}[language=ArangoQL]
   FOR user IN users
     FILTER user.age < 35
     SORT user.age ASC
-    RETURN concat(user.name, "'s age is ", user.age)
+    RETURN CONCAT(user.name, "'s age is ", user.age)
 \end{lstlisting}
 
 \subsubsection{Updating Documents}
 
-Performing a bulk update of documents can make use of filters to select a subset of the whole collection. Filters can also be used to update documents with incorrect missing information.
+When performing a bulk update of documents one can make use of filters to select a subset of the whole collection. Filters can also be used to update documents with incorrect missing information.
 
-\begin{lstlisting}[language=ArangoQL,label={lst:graph},caption={Updating documents}]
+\begin{lstlisting}[language=ArangoQL]
   FOR user IN users
     FILTER user.name == "Tick"
     UPDATE user WITH
     {
       hobbies: [
-        {
-          name: "biking",
-          howMuch: 9
-        },
-        {
-          name: "fishing",
-          howMuch: 7
-        }
+        { name: "biking", howMuch: 9 },
+        { name: "fishing", howMuch: 7 }
       ]
     }
     IN users
@@ -99,11 +87,11 @@ Performing a bulk update of documents can make use of filters to select a subset
 
 \subsubsection{Array Expansion}
 
-The array expansion, denoted as [*], can be used to replace for loops and reduce code for aggregations. The following code will return all unique hobbies of our users from our users collection.
+The array expansion, denoted as \texttt{[*]}, can be used to replace for loops and reduce code for aggregations. The following code will return all unique hobbies of our users from our users collection.
 
-\begin{lstlisting}[language=ArangoQL,label={lst:graph},caption={Array Expansion}]
-  RETURN unique(
-    flatten(
+\begin{lstlisting}[language=ArangoQL]
+  RETURN UNIQUE(
+    FLATTEN(
       users[*].hobbies[*].name
     )
   )
@@ -111,21 +99,21 @@ The array expansion, denoted as [*], can be used to replace for loops and reduce
 
 \subsection{Example queries of an ERM}
 
-To evaluate the practical application of ArangoDB we chose an entity relationship model (ERM) of a book rental system from our databases lecture from the third semester (see figure~\ref{fig:book_shop_erm}). We chose to remodel some queries in \gls{aql} with the goal to comprehend how we can achieve the result of an \gls{sql} system with \gls{aql}.
+To evaluate the practical application of ArangoDB we chose an entity relationship model (ERM) of a book rental system from a database lecture of the third semester (see figure~\ref{fig:book_shop_erm}). We tried to map some \gls{sql} statements to \gls{aql} with the goal to analyze the applicability of ArangoDB to relational models and to comprehend the differences.
 
 \subsubsection{Returning the average of how many times a book has been rented}
 
 The first exercise we choose is a simple aggregation. The code uses an array expansion to iterate through the collection and return the rental time which is then averaged.
 
-\begin{lstlisting}[language=ArangoQL,label={lst:graph},caption={Returning the average of how many times a book has been rented}]
+\begin{lstlisting}[language=ArangoQL]
   RETURN average(books[*].lent_times)
 \end{lstlisting}
 
 \subsubsection{Return which book is rented by whom}
 
-For that we use the rentals collection as our base and join the book and user information on their primary keys. We then format the output to return a JSON output returning each book with its reader.
+For that we use the rentals collection as our base and join the book and user information on their primary keys. We then return each book with its reader.
 
-\begin{lstlisting}[language=ArangoQL,label={lst:graph},caption={Return which book is rented by whom}]
+\begin{lstlisting}[language=ArangoQL]
   FOR r IN rentals
     LET b = DOCUMENT("books", r.book_id)
     LET u = DOCUMENT("users", r.reader_id)
@@ -142,7 +130,7 @@ For that we use the rentals collection as our base and join the book and user in
 
 For solving this problem we iterate through all rentals and save the due date for each book. We then check if the book exceeds its renting period and if it has not been returned yet. Finally we aggregate the book names and due dates and return each reader with a count of how many books are due.
 
-\begin{lstlisting}[language=ArangoQL,label={lst:graph},caption={Return how many books each reader should have given back}]
+\begin{lstlisting}[language=ArangoQL]
   FOR r IN rentals
     LET u = DOCUMENT("readers", r.reader_id)
     LET b = DOCUMENT("books", r.book_id)
@@ -166,27 +154,35 @@ For solving this problem we iterate through all rentals and save the due date fo
 
     RETURN {
       "name": name,
-      "books": length(books)
+      "books": LENGTH(books)
     }
 \end{lstlisting}
 
 \subsubsection{Return all books and for those which are rented, to whom they are}
 
-This task proved to be a more difficult one as we had to first retrieve all books that are rented out by someone. We then had to subtract that list from the full book list to get the list of books that are not rented by someone. This exampe shows the higher complexity of left joins in \gls{aql} as this query contains two sub-queries for rented and not-rented books.
+The according \gls{sql} statement is concise and fairly simple.
 
-\begin{lstlisting}[language=ArangoQL,label={lst:graph},caption={Return all books and for those which are rented, to whom they are}]
+\begin{lstlisting}[language=sql]
+SELECT b.*, IFNULL(v.reader_id, NULL) AS "verliehen an"
+FROM book b
+LEFT JOIN rentals v ON v.book_id = b.book_id;
+\end{lstlisting}
+
+This task proved to be more difficult: We retrieve all books that are rented out by someone. We then had to subtract that list from the full book list to get the list of books that are not rented by someone. This exampe shows the complexity of implementing left joins in \gls{aql} requiring two sub-queries.
+
+\begin{lstlisting}[language=ArangoQL]
   LET rented = (
     FOR r IN rentals
       LET b = DOCUMENT("books", r.book_id)
-      RETURN merge(b, {
+      RETURN MERGE(b, {
         "to": r.reader_id
       })
   )
 
-  LET not_rented_keys = minus(books[*]._key, rented[*]._key)
+  LET not_rented_keys = MINUS(books[*]._key, rented[*]._key)
   LET not_rented = DOCUMENT("books", not_rented_keys)
 
-  RETURN union(not_rented, rented)
+  RETURN UNION(not_rented, rented)
 \end{lstlisting}
 
 \section{Multi-Model Functions}
@@ -195,10 +191,9 @@ ArangoDB's strength lies within its capabilities to combine very different parad
 
 \subsection{Graph Data}
 
-Besides to the normal document collections one can create Edge collections. Each entry in such a collection represents a directed edge and must have at least two properties: \texttt{from\_} and \texttt{to\_} which hold the keys of documents representing the nodes connected by the edge. The entries can also hold other attributes (e.g.\ weight or distance). 
+Besides the normal document collections one can create Edge collections. Each entry in such a collection represents a directed edge and must have at least two properties: \texttt{from\_} and \texttt{to\_} which hold the keys of documents representing the nodes connected by the edge. The entries can also hold other attributes (e.g.\ weight or distance). 
 
-
-\begin{lstlisting}[language=ArangoQL,label={lst:graph},caption={Combining graph and relational data: Looks for a character and uses out-going edges of type \texttt{ChildOf} (= incoming edges of type \texttt{ParentOf}) to determine the character's parents and grandparents.}]
+\begin{lstlisting}[language=ArangoQL,caption={Combining graph and relational data: Looks for a character and uses out-going edges of type \texttt{ChildOf} (= incoming edges of type \texttt{ParentOf}) to determine the character's parents and grandparents.}]
 FOR c IN Characters
   FILTER c.name == "Bran"
   FOR parent in 1..2 OUTBOUND c ChildOf
@@ -210,21 +205,21 @@ There exist functions for graph traversal or finding the k shortest paths from A
 \subsection{Geo Indexing}
 
 Next to a primary index (key) a document collection can also hold a second index: a \texttt{GeoIndex}, which is defined on a document attribute that holds an array of length two representing the latitude and longitude of the location. A tutorial \parencite{GeoTut} still demonstrates the Geo Index Functions \texttt{NEAR} that could be used to determine the N nearest locations to a certain point, and \texttt{WITHIN} that could be used to determine locations within a certain radius.
-These are deprecated startimg from version 3.4.0 and were replaced by Geo utility functions, mainly the \texttt{DISTANCE} which can be used in combination with general \gls{aql} to achieve the same results as aforementioned functions. This queries will nonetheless still be optimized, as long as the attributes operated on have been marked as Geo Indexes \parencite{GeoFunc}.
+These are deprecated startimg from version 3.4.0 and were replaced by Geo utility functions, mainly the \texttt{DISTANCE} which can be used in combination with general \gls{aql} to achieve the same results. These queries will nonetheless still be optimized, as long as the attributes operated on have been marked as Geo indices \parencite{GeoFunc}.
 
-ArangoDB has extended the idea of two coordinates acting as a geo index to a more general geospatial format: \texttt{GeoJSON}. Next to geographic points it also among others allows the definition of \texttt{MultiLineString}s which could represent paths or routes and \texttt{Polygon}s which could represent areas or buildings \parencite{GeoJSON}.
-The functions \texttt{GEO\_CONTAINS}, \texttt{GEO\_AREA} or \texttt{GEO\_INTERSECTS} can then be used for evaluation of polygons in regards to whether it contains a certain point, the size of the area it circumfences or whether it intersects with a second polygon \parencite{GeoFunc}.
+ArangoDB has extended the idea of two coordinates acting as a geo index to a more general geospatial format: \texttt{GeoJSON}. Next to geographic points it also (among others) allows the definition of \texttt{MultiLineString}s which could represent paths or routes and \texttt{Polygon}s which might represent areas or buildings \parencite{GeoJSON}.
+The functions \texttt{GEO\_CONTAINS}, \texttt{GEO\_AREA} or \texttt{GEO\_INTERSECTS} can then be used for evaluation of polygons in regards to whether it contains a certain point, to determine the size of the area it circumfences or whether it intersects with a second polygon \parencite{GeoFunc}.
 
 \subsection{Information Retrieval}
 
-Search in natural language texts can be a relevant, but complex and compute-expensive operation. Arango provides functions and optimizations that facilitate this task in the form of two methods: Fulltext indexing and ArangoSearch.
+Search in natural language texts can be a relevant, but complex and compute-expensive operation. Arango provides two optimized methods optimizations that facilitate this task: Fulltext indexing and ArangoSearch.
 
-Equal to geo indexes an attribute within a document can be marked as a fulltext index. The attribute needs to contain a string, an object with string properties or an array of strings \parencite{FulltextIndex}. This opens up the \texttt{FULLTEXT} functionality which allows to look for documents which do (not) contain or do (not) start with a certain word. These checks can be combined in conjunctions or disjunctions \parencite{FulltextFunc}.
+Equal to geo indices an attribute within a document can be marked as a fulltext index. The attribute needs to contain a string, an object with string properties or an array of strings \parencite{FulltextIndex}. This opens up the \texttt{FULLTEXT} functionality which allows to look for documents which do (not) contain or do (not) start with a certain word. These checks can be combined in conjunctions or disjunctions \parencite{FulltextFunc}.
 
-ArangoSearch is a search engine that was created to help in querying semi- or unstructured data and offers ranking mechanisms. It parses documents and creates an inverted index which holds a mapping for each word in vocubalry to each document in the corpus it is contained in. This enables quick queries and a naive ranking methodology: given a set of words in query return the document which holds most of these words.
-This quite simple mechanism can be improved using known NLP methods: tokenization and stemming. ArangoDB overs text analyzers for many language that can split sentences into words (respecting cases like `aren\'t') and matching them to their according stem (e.g.\ jumps = jump). This enables the unified analysis of texts originating from multiple languages.
+ArangoSearch is a search engine that was created to help in querying semi- or unstructured data and offers ranking mechanisms. It parses documents and creates an inverted index which holds a mapping for each word in the vocublary to each document in the corpus it is contained in. This enables quick queries and a naive ranking methodology: given a set of words in a query return the document which holds most of these words.
+This quite simple mechanism can be improved using known NLP methods: tokenization and stemming. ArangoDB covers text analyzers for many languages. These can split sentences into words (respecting cases like `aren\'t') and match them to their according stem (e.g.\ jumps = jump). This enables the unified analysis of texts originating from multiple languages \parencite{ArangoSearchTut}.
 A further improvement can be the usage of more sophisticated ranking mechanisms than the described naive ranking. \gls{tf-idf} can be used to weight words according to their global importance (`is' is less important than `archaeopteryx').
-The `BM25' metric combines the word's frequency within the text with its overall importance (\gls{tf-idf}), the length of the document and the average document length to determine a qualified measure that can be used to score a document's relevance to a given search query. \parencite{ArangoSearchTut}
+The `BM25' metric combines the word's frequency within the text with its overall importance (\gls{tf-idf}), the length of the document and the average document length to determine a qualified measure that can be used to score a document's relevance to a given search query \parencite{robertson_probabilistic_2009}. 
 
 \begin{lstlisting}[language=ArangoQL,caption={Searching a database of movie descriptions}]
 FOR d IN v_imdb 
@@ -241,7 +236,7 @@ FOR d IN v_imdb
 \section{Comparing ArangoDB}
 
 \subsection{Multi-Model}
-A big difference between ArangoDB, MongoDB and Neo4j lies in the models they support. ArangoDB allows the user to store data in key-value based, document based, something the official website describes as "kind of relational" based and graph based stores \parencite{DBBenchmark}. ArangoDB can therefore be used in a wider range of use cases. MongoDB and Neo4j are only single-model databases. MongoDB is a document-based storage which makes it suitable for storing JSON-like data. Neo4j is a graph database which makes it mostly suitable for graph-based problems. Because of the differences in underlying concepts, direct comparisons between ArangoDB, MongoDB and Neo4j may not always make sense.
+A big difference between ArangoDB, MongoDB and Neo4j lies in the models they support. ArangoDB allows the user to store data in key-value based, document-based, something the official website describes as "kind of relational" based, and graph-based stores \parencite{DBBenchmark}. ArangoDB can therefore be used in a wider range of use cases. MongoDB and Neo4j are only single-model databases. MongoDB is a document-based storage which makes it suitable for storing JSON-like data. Neo4j is a graph database which makes it mostly suitable for graph-based problems. Because of the differences in underlying concepts, direct comparisons between ArangoDB, MongoDB and Neo4j may not always make sense.
 
 \subsection{Supported Technologies}
 
@@ -264,11 +259,9 @@ In 2018, ArangoDB CEO Claudius Weinberger and others performed a benchmark which
 
 ArangoDBs RocksDB engine is used as the baseline for calculating the relative perfomance of the other systems.
 
-MongoDB is outperformed by the other two systems in almost every category only having an advantage in memory consumption and being better than Neo4j in neighbors second with data and aggregation. MongoDB has the \$graphlookup operator but according to the developer team ``performance was so slow that we decided not to use it and wrote the query in the old way''. The shortest path calculation was therefore skipped \parencite{DBBenchmark}.
+MongoDB is outperformed by the other two systems in almost every category only having an advantage in memory consumption. It is better than Neo4j in neighbors second with data and aggregation. MongoDB has the \texttt{\$graphlookup} operator but according to the developer team ``performance was so slow that we decided not to use it and wrote the query in the old way''. The shortest path calculation was therefore skipped \parencite{DBBenchmark}.
 
-Neo4j performs worse than ArangoDB in all categories by almost 100\%, leaving out single reads and writes. Also there Neo4j does not support single writes without waiting for file synchronization. Performance might increase for graph tasks by adding another edge index since the team did not add one as "Neo4j claims to use “index-free adjacency” for the edges \parencite{DBBenchmark}."
-
-ArangoDBs own engines perform very similar falling within 5\% range. The only categories that a notable difference are shortest path and neighbors second where RocksDB outperforms MMFiles and memory usage where MMFiles performs better by around 7\% \parencite{DBBenchmark}.
+Neo4j performs worse than ArangoDB in all categories by almost 100\%, leaving out single reads and writes. Neo4j does not support single writes without waiting for file synchronization. Performance might increase for graph tasks by adding another edge index since the team did not add one as ``Neo4j claims to use `index-free adjacency' for the edges'' \parencite{DBBenchmark}.
 
 \section{Conclusion and Recommendations}
-While ArangoDB is a powerful database management system and can be used in many scenarios it should (like all other DBMS) not be used without consideration of alternatives. When working with document data for example MongoDB might be a better solution and when working with structured data SQL is the way to go. When it comes to combining multiple data models though ArangoDB is a very capable solution and should always be considered.
+While ArangoDB is a powerful database management system and can be used in many scenarios it should (like all other DBMS) not be used without consideration of alternatives. When working with document data for example MongoDB might be a better solution and when working with relational data SQL is the way to go. When it comes to combining multiple data models though, ArangoDB is a very capable solution and should always be considered.

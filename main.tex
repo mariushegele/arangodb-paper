@@ -37,9 +37,15 @@
 \definecolor{ArangoNumberColor}{HTML}{0300cd}
 \lstdefinelanguage{ArangoQL}{
   sensitive=false,
-  morekeywords={FOR,IN,FILTER,OUTBOUND,RETURN,SORT,LIMIT,SEARCH,ASC,DESC,COLLECT,INTO,LET,AND},
+  morekeywords={FOR,IN,FILTER,OUTBOUND,RETURN,SORT,
+    LIMIT,SEARCH,ASC,DESC,COLLECT,INTO,LET,AND,
+    UPDATE,WITH
+  },
   keywordstyle=\color{ArangoKeywordColor},
-  morekeywords={[2]PHRASE,ANALYZER,STARTS_WITH,TFIDF,BM25,TOKENS},
+  morekeywords={[2]PHRASE,ANALYZER,STARTS_WITH,
+    TFIDF,BM25,TOKENS,MINUS,DOCUMENT,UNION,MERGE,
+    DATE_ISO8601,LENGTH,FLATTEN,UNIQUE,CONCAT
+  },
   keywordstyle=[2]\color{ArangoFuncColor},
   morestring=[b]",
   morestring=[b]',
