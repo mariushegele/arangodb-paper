@@ -111,7 +111,7 @@ The array expansion, denoted as [*], can be used to replace for loops and reduce
 
 \subsection{Example queries of an ERM}
 
-The following queries are based on the following entity relationship model (ERM) of a book rental system from our databases lecture from the third semester which would be used in a relational database. We chose to remodel some queries in \gls{aql} with the goal to comprehend how we can achieve the result of an \gls{sql} system with \gls{aql}.
+To evaluate the practical application of ArangoDB we chose an entity relationship model (ERM) of a book rental system from our databases lecture from the third semester (see figure~\ref{fig:book_shop_erm}). We chose to remodel some queries in \gls{aql} with the goal to comprehend how we can achieve the result of an \gls{sql} system with \gls{aql}.
 
 \subsubsection{Returning the average of how many times a book has been rented}
 
@@ -264,7 +264,7 @@ In 2018, ArangoDB CEO Claudius Weinberger and others performed a benchmark which
 
 ArangoDBs RocksDB engine is used as the baseline for calculating the relative perfomance of the other systems.
 
-MongoDB is outperformed by the other two systems in almost every category only having an advantage in memory consumption and being better than Neo4j in neighbors second with data and aggregation. MongoDB has the \$graphlookup operator but according to the developer team "performance was so slow that we decided not to use it and wrote the query in the old way [...]". The shortest path calculation was therefore skipped \parencite{DBBenchmark}.
+MongoDB is outperformed by the other two systems in almost every category only having an advantage in memory consumption and being better than Neo4j in neighbors second with data and aggregation. MongoDB has the \$graphlookup operator but according to the developer team ``performance was so slow that we decided not to use it and wrote the query in the old way''. The shortest path calculation was therefore skipped \parencite{DBBenchmark}.
 
 Neo4j performs worse than ArangoDB in all categories by almost 100\%, leaving out single reads and writes. Also there Neo4j does not support single writes without waiting for file synchronization. Performance might increase for graph tasks by adding another edge index since the team did not add one as "Neo4j claims to use “index-free adjacency” for the edges \parencite{DBBenchmark}."
 
