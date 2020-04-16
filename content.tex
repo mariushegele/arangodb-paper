@@ -111,7 +111,7 @@ The array expansion, denoted as [*], can be used to replace for loops and reduce
 
 \subsection{Example queries of an ERM}
 
-The following queries are based on the following entity relationship model (ERM) of a book rental system from our databases lecture from the third semester which would be used in a relational database. We chose to remodel some queries in AQL with the goal to comprehend how we can achieve the result of an SQL system with AQL.
+The following queries are based on the following entity relationship model (ERM) of a book rental system from our databases lecture from the third semester which would be used in a relational database. We chose to remodel some queries in \gls{aql} with the goal to comprehend how we can achieve the result of an \gls{sql} system with \gls{aql}.
 
 Returning the average of how many times a book has been rented
 
@@ -172,7 +172,7 @@ For solving this problem we iterate through all rentals and save the due date fo
 
 Return all books and for those which are rented, to whom they are
 
-This task proved to be a more difficult one as we had to first retrieve all books that are rented out by someone. We then had to subtract that list from the full book list to get the list of books that are not rented by someone. This exampe shows the higher complexity of left joins in AQL as this query contains two sub-queries for rented and not-rented books.
+This task proved to be a more difficult one as we had to first retrieve all books that are rented out by someone. We then had to subtract that list from the full book list to get the list of books that are not rented by someone. This exampe shows the higher complexity of left joins in \gls{aql} as this query contains two sub-queries for rented and not-rented books.
 
 \begin{lstlisting}[language=ArangoQL,label={lst:graph},caption={Return all books and for those which are rented, to whom they are}]
   LET rented = (
